@@ -1,352 +1,105 @@
-import { useState } from 'react'
-import {
-  Bell,
-  Bookmark,
-  CalendarDays,
-  Camera,
-  ChevronRight,
-  Clock3,
-  Coffee,
-  Compass,
-  Heart,
-  Home,
-  Image,
-  Map,
-  MapPin,
-  Menu,
-  MessageCircle,
-  MoreHorizontal,
-  Navigation,
-  Plus,
-  Route,
-  Search,
-  Settings,
-  Share2,
-  Sparkles,
-  UserPlus,
-  Users,
-  UtensilsCrossed,
-  X,
-} from 'lucide-react'
+import { Bell, Bookmark, ChevronDown, ChevronRight, Heart, Home, Image, MapPin, MessageCircle, MoreHorizontal, Plus, Route, Search, Share2, UserRound, Users } from 'lucide-react'
 
-const stories = [
-  { name: '내 스토리', image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=200&q=80', mine: true },
-  { name: '민지', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80' },
-  { name: '준호', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=200&q=80' },
-  { name: '수빈', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80' },
-  { name: '현우', image: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=200&q=80' },
-  { name: '여진', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=200&q=80' },
-  { name: '태윤', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&w=200&q=80' },
+const storyImgs = [
+  'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=220&q=80',
+  'https://images.unsplash.com/photo-1526772662000-3f88f10405ff?auto=format&fit=crop&w=220&q=80',
+  'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=220&q=80',
+  'https://images.unsplash.com/photo-1527631746610-bca00a040d60?auto=format&fit=crop&w=220&q=80',
+  'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=220&q=80',
+  'https://images.unsplash.com/photo-1530789253388-582c481c54b0?auto=format&fit=crop&w=220&q=80',
 ]
 
-const navItems = [
-  { label: '피드', icon: Home },
-  { label: '탐색', icon: Compass },
-  { label: '루트맵', icon: Map },
-  { label: '저장함', icon: Bookmark },
+const routeImages = [
+  'https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=600&q=80',
+  'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=600&q=80',
+  'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=600&q=80',
+  'https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=600&q=80',
 ]
 
-const sideItems = [
-  { label: '홈', icon: Home },
-  { label: '나의 여행', icon: Route },
-  { label: '크루', icon: Users },
-  { label: '일정', icon: CalendarDays },
-  { label: '설정', icon: Settings },
-]
-
-const routeStops = [
-  { time: '11:00', title: '성수 연무장길', text: '작은 편집숍과 오래된 공장이 같이 있는 골목부터 천천히 시작했어요.', icon: MapPin },
-  { time: '12:30', title: '대림창고 갤러리', text: '붉은 벽돌과 높은 천장, 사진 찍기 좋은 포인트가 정말 많았습니다.', icon: Camera },
-  { time: '14:10', title: '카페 어니언', text: '잠깐 쉬면서 커피 한 잔. 평일 오후라 생각보다 여유로웠어요.', icon: Coffee },
-  { time: '16:00', title: '서울숲 산책', text: '마지막은 서울숲까지 걸어서 마무리. 노을 시간에 맞추면 더 좋아요.', icon: Navigation },
-]
-
-const travelers = [
-  { name: '김하늘', handle: '@skytrip', image: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?auto=format&fit=crop&w=160&q=80' },
-  { name: '박도윤', handle: '@doyoon.log', image: 'https://images.unsplash.com/photo-1501196354995-cbb51c65aaea?auto=format&fit=crop&w=160&q=80' },
-  { name: '이서현', handle: '@seohyun.zip', image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=160&q=80' },
-]
-
-const hotRoutes = [
-  { title: '한강 야경 3시간 코스', meta: '서울 · 5 spots', icon: Sparkles },
-  { title: '부산 영도 하루 걷기', meta: '부산 · 7 spots', icon: Navigation },
-  { title: '제주 동쪽 카페 드라이브', meta: '제주 · 6 spots', icon: Coffee },
-]
-
-function Avatar({ src, alt, size = 42 }) {
-  return <img className="avatar" src={src} alt={alt} width={size} height={size} />
-}
+const avatar = 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=120&q=80'
 
 function App() {
-  const [activeNav, setActiveNav] = useState('피드')
-  const [liked, setLiked] = useState(true)
-  const [saved, setSaved] = useState(false)
-  const [following, setFollowing] = useState(() => new Set())
-  const [mobileOpen, setMobileOpen] = useState(false)
-
-  const toggleFollow = (name) => {
-    setFollowing((prev) => {
-      const next = new Set(prev)
-      next.has(name) ? next.delete(name) : next.add(name)
-      return next
-    })
-  }
-
   return (
-    <div className="app-shell">
-      <header className="topbar">
-        <div className="topbar-inner">
-          <button className="mobile-menu" onClick={() => setMobileOpen(true)} aria-label="메뉴 열기">
-            <Menu size={22} />
-          </button>
-
-          <a className="brand" href="#top" aria-label="Journee 홈">
-            <span className="brand-mark"><Navigation size={19} strokeWidth={2.4} /></span>
-            <span>
-              <strong>Journee</strong>
-              <small>Share your journey</small>
-            </span>
-          </a>
-
-          <nav className="main-nav" aria-label="주요 메뉴">
-            {navItems.map(({ label, icon: Icon }) => (
-              <button key={label} className={activeNav === label ? 'nav-item active' : 'nav-item'} onClick={() => setActiveNav(label)}>
-                <Icon size={17} />
-                {label}
-              </button>
-            ))}
-          </nav>
-
-          <div className="top-actions">
-            <label className="search-box">
-              <Search size={17} />
-              <input aria-label="검색" placeholder="여행지, 루트, 사람 검색" />
-            </label>
-            <button className="icon-button" aria-label="알림"><Bell size={19} /></button>
-            <Avatar src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80" alt="내 프로필" size={38} />
-          </div>
+    <div className="screen">
+      <aside className="leftRail">
+        <div className="logoWrap">
+          <div className="logoText">Journee <span>↗</span></div>
+          <div className="logoSub">Share your journey</div>
         </div>
-      </header>
+        <button className="writeBtn"><Plus size={18}/> 여행 기록 작성</button>
+        <nav className="sideNav">
+          <button className="active"><Home size={18}/> 홈</button>
+          <button><Users size={18}/> 팔로잉</button>
+          <button><span className="tinyIcon">♨</span> 핫한 여행</button>
+          <button><Route size={18}/> 나의 루트</button>
+          <button><Bookmark size={18}/> 저장한 루트</button>
+          <button><MapPin size={18}/> 다녀온 곳</button>
+        </nav>
+        <div className="sideDivider"/>
+        <div className="sectionTitleRow"><b>나의 여행 스타일</b><span>편집</span></div>
+        <div className="chips"><span>카페투어 ☕</span><span>감성여행 ✨</span><span>혼행러 🚶</span><span>도보여행 🚶</span></div>
+        <div className="sideDivider"/>
+        <div className="hashTitle">인기 해시태그</div>
+        <div className="hashtags"><span>#성수동 <em>12.3K</em></span><span>#서울여행 <em>8.1K</em></span><span>#감성카페 <em>6.7K</em></span><span>#일본여행 <em>5.4K</em></span><span>#제주도 <em>4.8K</em></span></div>
+        <div className="moreHash">더보기 <ChevronDown size={13}/></div>
+        <div className="promoCard">
+          <b>우리만의 여행 루트,<br/>지도 위에 남겨보세요!</b>
+          <button>루트맵 만들기</button>
+          <div className="promoArt">🌴 🚐 🌊</div>
+        </div>
+      </aside>
 
-      <div className="page" id="top">
-        <aside className={mobileOpen ? 'left-sidebar open' : 'left-sidebar'}>
-          <div className="mobile-sidebar-head">
-            <a className="brand" href="#top">
-              <span className="brand-mark"><Navigation size={19} /></span>
-              <strong>Journee</strong>
-            </a>
-            <button className="icon-button" onClick={() => setMobileOpen(false)} aria-label="메뉴 닫기"><X size={20} /></button>
-          </div>
+      <div className="mainArea">
+        <header className="topbar">
+          <nav className="topNav"><button className="active">피드</button><button>탐색</button><button>루트맵</button><button>저장함</button></nav>
+          <div className="search"><Search size={16}/><span>여행지, 태그, 사용자 검색</span></div>
+          <Bell className="bell" size={19}/>
+          <img className="topAvatar" src={avatar}/><ChevronDown size={14}/>
+        </header>
 
-          <button className="write-button">
-            <Plus size={19} />
-            여행 기록 작성
-          </button>
-
-          <div className="side-menu">
-            {sideItems.map(({ label, icon: Icon }, index) => (
-              <button key={label} className={index === 0 ? 'side-link active' : 'side-link'}>
-                <Icon size={19} />
-                <span>{label}</span>
-              </button>
-            ))}
-          </div>
-
-          <div className="side-card">
-            <span className="side-card-icon"><Sparkles size={18} /></span>
-            <div>
-              <strong>이번 주 여행 기록</strong>
-              <p>새로운 루트를 완성하면 여행 배지가 열립니다.</p>
-            </div>
-          </div>
-
-          <div className="side-footer">
-            <a href="#terms">이용약관</a>
-            <a href="#privacy">개인정보</a>
-            <span>© 2026 Journee</span>
-          </div>
-        </aside>
-
-        {mobileOpen && <button className="drawer-backdrop" aria-label="메뉴 닫기" onClick={() => setMobileOpen(false)} />}
-
-        <main className="feed-column">
-          <section className="stories card" aria-label="스토리">
-            {stories.map((story) => (
-              <button className="story" key={story.name}>
-                <span className={story.mine ? 'story-ring mine' : 'story-ring'}>
-                  <img src={story.image} alt="" />
-                  {story.mine && <span className="story-plus"><Plus size={12} strokeWidth={3} /></span>}
-                </span>
-                <span>{story.name}</span>
-              </button>
-            ))}
-          </section>
-
-          <section className="composer card">
-            <div className="composer-row">
-              <Avatar src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80" alt="내 프로필" />
-              <button className="composer-input">오늘의 여행을 기록해보세요.</button>
-            </div>
-            <div className="composer-actions">
-              <button><Image size={17} /> 사진</button>
-              <button><MapPin size={17} /> 장소</button>
-              <button><Route size={17} /> 루트</button>
-              <button className="composer-publish">기록하기</button>
-            </div>
-          </section>
-
-          <article className="post card">
-            <header className="post-head">
-              <div className="post-author">
-                <Avatar src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=160&q=80" alt="민지" size={46} />
-                <div>
-                  <div className="author-name">민지 <span className="verified">✓</span></div>
-                  <div className="post-meta">@minji.route · 2시간 전 · 서울 성수동</div>
-                </div>
-              </div>
-              <button className="icon-button"><MoreHorizontal size={20} /></button>
-            </header>
-
-            <div className="post-copy">
-              <h1>성수 감성 하루 코스</h1>
-              <p>날씨 좋은 날 걷기만 해도 기분 좋아지는 성수 루트. 사진 찍고, 커피 마시고, 서울숲까지 천천히 이어지는 코스로 묶어봤어요.</p>
-              <div className="tags"><span>#성수</span><span>#서울여행</span><span>#카페투어</span><span>#도보여행</span></div>
-            </div>
-
-            <div className="hero-grid">
-              <img className="hero-main" src="https://images.unsplash.com/photo-1535189043414-47a3c49a0bed?auto=format&fit=crop&w=1000&q=85" alt="성수 골목" />
-              <div className="hero-stack">
-                <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?auto=format&fit=crop&w=700&q=85" alt="카페" />
-                <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=700&q=85" alt="산책" />
-              </div>
-            </div>
-
-            <section className="route-card">
-              <div className="route-summary">
-                <div>
-                  <span className="eyebrow"><Route size={14} /> ROUTE</span>
-                  <h2>성수에서 서울숲까지, 5시간</h2>
-                  <p><Clock3 size={15} /> 5시간 20분 <span>·</span> 4개 장소 <span>·</span> 약 4.8km</p>
-                </div>
-                <button className="route-follow"><Navigation size={16} /> 루트 따라가기</button>
-              </div>
-
-              <div className="route-content">
-                <div className="timeline">
-                  {routeStops.map(({ time, title, text, icon: Icon }, index) => (
-                    <div className="timeline-item" key={title}>
-                      <div className="timeline-rail">
-                        <span className="timeline-dot"><Icon size={14} /></span>
-                        {index < routeStops.length - 1 && <span className="timeline-line" />}
-                      </div>
-                      <div className="timeline-body">
-                        <span className="timeline-time">{time}</span>
-                        <strong>{title}</strong>
-                        <p>{text}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="map-preview" aria-label="성수 루트 지도 미리보기">
-                  <div className="map-road r1" />
-                  <div className="map-road r2" />
-                  <div className="map-road r3" />
-                  <div className="map-road r4" />
-                  <svg viewBox="0 0 340 300" role="img" aria-label="성수에서 서울숲까지 이어지는 루트">
-                    <path d="M46 67 C88 34, 118 61, 139 96 S183 148, 216 133 S278 145, 292 217" fill="none" stroke="white" strokeWidth="9" strokeLinecap="round" opacity=".96" />
-                    <path d="M46 67 C88 34, 118 61, 139 96 S183 148, 216 133 S278 145, 292 217" fill="none" stroke="#ff6333" strokeWidth="5" strokeLinecap="round" />
-                    {[['46','67','1'],['139','96','2'],['216','133','3'],['292','217','4']].map(([cx, cy, n]) => (
-                      <g key={n}>
-                        <circle cx={cx} cy={cy} r="12" fill="#ff6333" stroke="white" strokeWidth="4" />
-                        <text x={cx} y={Number(cy)+4} textAnchor="middle" fontSize="10" fill="white" fontWeight="800">{n}</text>
-                      </g>
-                    ))}
-                  </svg>
-                  <span className="map-label l1">성수동</span>
-                  <span className="map-label l2">서울숲</span>
-                  <button className="map-expand"><Map size={15} /> 지도 크게 보기</button>
-                </div>
-              </div>
+        <div className="contentGrid">
+          <main className="feed">
+            <section className="storiesPanel">
+              <div className="story mine"><div className="storyCircle plus"><Plus size={21}/></div><span>내 스토리</span></div>
+              {['오늘 제주','도쿄 산책','부산 바다','방콕 미식','파리 감성','오사카 쇼핑'].map((t,i)=><div className="story" key={t}><div className="storyCircle"><img src={storyImgs[i]}/></div><span>{t}</span></div>)}
             </section>
 
-            <footer className="post-footer">
-              <div className="post-actions-left">
-                <button className={liked ? 'action liked' : 'action'} onClick={() => setLiked(!liked)}>
-                  <Heart size={20} fill={liked ? 'currentColor' : 'none'} /> {liked ? 284 : 283}
-                </button>
-                <button className="action"><MessageCircle size={20} /> 31</button>
-                <button className="action"><Share2 size={20} /> 공유</button>
+            <section className="composer">
+              <div className="composerTop"><img src={avatar}/><span>오늘의 여행을 공유해보세요 ✈️</span></div>
+              <div className="composerBottom"><button><Image size={16}/> 사진/영상</button><button><Route size={16}/> 루트 추가</button><button><MapPin size={16}/> 장소 태그</button><button>☺ 기분/메모</button></div>
+            </section>
+
+            <article className="postCard">
+              <div className="postHead"><div className="author"><img src={avatar}/><div><b>travel_yeon</b><span>성동 성수구 · 2시간 전</span></div></div><MoreHorizontal size={18}/></div>
+              <div className="postTitle"><h2>성수 감성 하루 코스</h2><p>카페와 소품샵, 산책까지 완벽한 하루</p><div className="metaPills"><span>◷ 6시간</span><span>◉ 8개 장소</span><span>⌖ 2.3km</span><span>₩ 30,000~50,000</span></div></div>
+              <div className="photoStrip">{routeImages.map((src,i)=><div className="photo" key={src}><img src={src}/>{i===3&&<div className="morePhoto">+6</div>}</div>)}</div>
+              <h3 className="routeHeading">내가 다녀온 루트</h3>
+              <div className="routeSection">
+                <div className="timelineList">
+                  {[
+                    ['09:00','1','Cafe Onion','카페 · 성수동'],['10:30','2','대림창고','복합문화공간'],['12:00','3','성수연방','점심 · 맛집'],['14:00','4','서울숲','산책 · 힐링'],['16:00','5','아크앤북','서점 · 소품샵'],['18:30','6','뚝섬 한강공원','야경 · 피크닉']
+                  ].map((r)=><div className="routeRow" key={r[0]}><b>{r[0]}</b><span className="num">{r[1]}</span><div><strong>{r[2]}</strong><small>{r[3]}</small></div><img src={routeImages[(Number(r[1])-1)%4]}/></div>)}
+                </div>
+                <div className="mapBox"><svg viewBox="0 0 260 220"><path d="M38 168 C70 135 80 142 102 111 S137 78 156 91 S190 122 208 66" fill="none" stroke="#d7edef" strokeWidth="4" strokeDasharray="5 5"/><path d="M70 187 C96 166 115 161 140 140 S184 114 208 66" fill="none" stroke="#0c9298" strokeWidth="3" strokeDasharray="4 4"/>{[[58,170,2],[102,142,1],[137,117,3],[159,91,1],[204,66,3]].map(([x,y,n],i)=><g key={i}><circle cx={x} cy={y} r="10" fill="#0c9298"/><text x={x} y={y+4} fill="white" textAnchor="middle" fontSize="10" fontWeight="700">{n}</text></g>)}</svg><button>⌖ 지도 크게 보기</button></div>
               </div>
-              <button className={saved ? 'action saved' : 'action'} onClick={() => setSaved(!saved)}>
-                <Bookmark size={20} fill={saved ? 'currentColor' : 'none'} />
-              </button>
-            </footer>
-          </article>
+              <div className="postText">성수는 갈 때마다 새로운 매력이 있는 것 같아요. 카페, 전시, 산책 코스로 딱 좋은 하루였습니다!<br/>특히 대림창고 전시 추천해요 :)</div>
+              <div className="tagLine">#성수 #성수동카페 #서울데이트 #감성여행 #하루코스</div>
+              <div className="actions"><div><button className="heart"><Heart size={20} fill="currentColor"/>128</button><button><MessageCircle size={19}/>12</button><button><Bookmark size={19}/>저장</button></div><button className="followRoute"><Route size={18}/> 루트 따라가기</button><Share2 size={18}/></div>
+            </article>
 
-          <article className="mini-post card">
-            <div className="mini-post-image" />
-            <div className="mini-post-copy">
-              <span className="eyebrow"><UtensilsCrossed size={14} /> WEEKEND PICK</span>
-              <h3>망원에서 합정까지, 먹고 걷는 오후</h3>
-              <p>시장 간식부터 한강 산책까지 이어지는 짧은 주말 루트.</p>
-              <button>루트 보기 <ChevronRight size={16} /></button>
-            </div>
-          </article>
-        </main>
+            <article className="postCard second"><div className="postHead"><div className="author"><img src={avatar}/><div><b>jina_trip</b><span>부산 해운대구 · 5시간 전</span></div></div><MoreHorizontal size={18}/></div><div className="postTitle"><h2>부산 1박 2일 먹방 여행 😋🍤</h2><div className="metaPills"><span>▣ 1박 2일</span><span>◉ 7개 장소</span><span>₩ 80,000~120,000</span></div></div><div className="secondPhotos">{routeImages.map(src=><img key={src} src={src}/>)}</div></article>
+          </main>
 
-        <aside className="right-sidebar">
-          <section className="right-card card">
-            <div className="section-head">
-              <div><span>오늘의 여행자</span><strong>취향이 비슷한 사람</strong></div>
-              <button>더보기</button>
-            </div>
-            <div className="traveler-list">
-              {travelers.map((traveler) => {
-                const isFollowing = following.has(traveler.name)
-                return (
-                  <div className="traveler" key={traveler.name}>
-                    <Avatar src={traveler.image} alt={traveler.name} size={42} />
-                    <div className="traveler-copy"><strong>{traveler.name}</strong><span>{traveler.handle}</span></div>
-                    <button className={isFollowing ? 'follow-button following' : 'follow-button'} onClick={() => toggleFollow(traveler.name)}>
-                      {isFollowing ? '팔로잉' : <><UserPlus size={14} /> 팔로우</>}
-                    </button>
-                  </div>
-                )
-              })}
-            </div>
-          </section>
-
-          <section className="right-card card">
-            <div className="section-head">
-              <div><span>지금 인기</span><strong>핫한 루트</strong></div>
-              <button>전체보기</button>
-            </div>
-            <div className="hot-list">
-              {hotRoutes.map(({ title, meta, icon: Icon }, index) => (
-                <button className="hot-item" key={title}>
-                  <span className="rank">0{index + 1}</span>
-                  <span className="hot-icon"><Icon size={17} /></span>
-                  <span className="hot-copy"><strong>{title}</strong><small>{meta}</small></span>
-                  <ChevronRight size={16} />
-                </button>
-              ))}
-            </div>
-          </section>
-
-          <section className="saved-route card">
-            <div className="saved-route-image">
-              <span><Bookmark size={16} fill="currentColor" /> 저장됨</span>
-            </div>
-            <div className="saved-route-copy">
-              <span className="eyebrow">MY SAVED ROUTE</span>
-              <h3>제주 동쪽 하루 드라이브</h3>
-              <p>7개 장소 · 8시간</p>
-              <button>저장한 루트 열기 <ChevronRight size={16} /></button>
-            </div>
-          </section>
-        </aside>
+          <aside className="rightCol">
+            <section className="rightCard travelers"><div className="rHead"><b>오늘의 여행자</b><span>더보기 <ChevronRight size={13}/></span></div>{[['minseo_travel','도쿄 · 감성러'],['hello_camper','제주 · 캠퍼'],['travel_yeon','서울 · 카페투어']].map((r,i)=><div className="person" key={r[0]}><img src={i===1?storyImgs[1]:avatar}/><div><b>{r[0]}</b><small>{r[1]}</small></div><button>{i===2?'팔로잉':'팔로우'}</button></div>)}</section>
+            <section className="rightCard hotRoutes"><div className="rHead"><b>핫한 루트 🔥</b><span>더보기 <ChevronRight size={13}/></span></div>{[['오사카 3일 쇼핑 & 맛집 루트','sso_travel','342'],['제주 동쪽 감성 드라이브 코스','jeju-lover','287'],['후쿠오카 2박 3일 알차게!','fukuoka_log','215']].map((r,i)=><div className="routeMini" key={r[0]}><img src={routeImages[i]}/><div><b>{r[0]}</b><small>{r[1]}</small><span>♡ {r[2]}</span></div></div>)}</section>
+            <section className="rightCard saved"><div className="rHead"><b>내 저장 루트</b><span>더보기 <ChevronRight size={13}/></span></div>{[['도쿄 감성 카페투어','저장한 날 3일 전'],['강릉 바다 & 브런치 코스','저장한 날 1주 전'],['전주 한옥마을 하루 코스','저장한 날 2주 전']].map((r,i)=><div className="savedRow" key={r[0]}><img src={routeImages[i]}/><div><b>{r[0]}</b><small>{r[1]}</small></div><Bookmark size={18}/></div>)}</section>
+            <section className="mapPromo"><b>마음에 드는 루트를<br/>내 일정에 추가해보세요!</b><button>내 루트맵 보기</button><div className="mapArt">⌖ ⋯ ⌖</div></section>
+          </aside>
+        </div>
       </div>
+
+      <footer className="bottomBar"><button className="active"><Home size={21}/><span>홈</span></button><button><Search size={21}/><span>탐색</span></button><button className="bigPlus"><Plus size={26}/><span>글쓰기</span></button><button><Bell size={21}/><span>알림</span></button><button><UserRound size={21}/><span>프로필</span></button></footer>
     </div>
   )
 }
