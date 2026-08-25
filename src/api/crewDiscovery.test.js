@@ -15,7 +15,7 @@ test('authenticated default first batch selects personalized Crew endpoint', () 
   )
 
   const request = createCrewDiscoveryRequest({
-    baseUrl: 'https://api.example.test/',
+    baseUrl: 'https://api.example.test/api/v1/',
     accessToken: 'token',
     page: 0,
     limit: 20,
@@ -26,12 +26,29 @@ test('authenticated default first batch selects personalized Crew endpoint', () 
   assert.equal(request.headers.Authorization, 'Bearer token')
 })
 
-test('anonymous discovery remains on legacy Crew endpoint', () => {
+test('default API root keeps same-origin api-v1 legacy path', () => {
   const request = createCrewDiscoveryRequest({ page: 0, limit: 20 })
 
   assert.equal(request.mode, CREW_DISCOVERY_MODE.LEGACY)
   assert.equal(request.url, '/api/v1/crews?page=0&size=20')
   assert.equal('Authorization' in request.headers, false)
+})
+
+test('team frontend api root does not duplicate api-v1 segment', () => {
+  const request = createCrewDiscoveryRequest({
+    baseUrl: 'http://localhost:8080/api/v1',
+    accessToken: 'token',
+    page: 0,
+    limit: 20,
+  })
+
+  assert.equal(request.url, 'http://localhost:8080/api/v1/recommendation/crews?limit=20')
+  assert.equal(request.url.includes('/api/v1/api/v1/'), false)
+})
+
+test('empty API root falls back to same-origin api-v1', () => {
+  const request = createCrewDiscoveryRequest({ baseUrl: '   ', page: 0, limit: 20 })
+  assert.equal(request.url, '/api/v1/crews?page=0&size=20')
 })
 
 test('authenticated keyword and region filters remain legacy', () => {
@@ -98,6 +115,7 @@ test('personalized response preserves server order and recommendation metadata',
   )
 
   assert.equal(seen.length, 1)
+  assert.equal(seen[0].url, '/api/v1/recommendation/crews?limit=2')
   assert.equal(result.mode, CREW_DISCOVERY_MODE.PERSONALIZED)
   assert.deepEqual(result.items.map((item) => item.crew.id), [42, 7])
   assert.deepEqual(result.items.map((item) => item.recommendation.rank), [1, 2])
