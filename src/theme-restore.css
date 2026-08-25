@@ -1,0 +1,47 @@
+:root {
+  --orange: #0b8f95;
+  --orange-dark: #087a80;
+  --orange-soft: #e9f7f7;
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(11, 143, 149, 0.035), transparent 22rem),
+    #f6f8fa;
+}
+
+.brand-mark {
+  background: linear-gradient(145deg, #38b8bd, #0b8f95);
+  box-shadow: 0 8px 18px rgba(11, 143, 149, 0.2);
+}
+
+.search-box:focus-within {
+  border-color: #9bd8db;
+  box-shadow: 0 0 0 3px rgba(11, 143, 149, 0.08);
+}
+
+.write-button {
+  background: linear-gradient(135deg, #19aab0, #0b8f95);
+  box-shadow: 0 10px 22px rgba(11, 143, 149, 0.18);
+}
+
+.write-button:hover {
+  box-shadow: 0 12px 26px rgba(11, 143, 149, 0.24);
+}
+
+.side-card {
+  border-color: #d9eeee;
+  background: linear-gradient(145deg, #f8ffff, #edf9f9);
+}
+
+.side-card p {
+  color: #637f81;
+}
+
+.story-ring {
+  background: linear-gradient(145deg, #7bd6da, #0b8f95, #b7e9eb);
+}
+
+.tags span {
+  color: #0b8f95;
+}
