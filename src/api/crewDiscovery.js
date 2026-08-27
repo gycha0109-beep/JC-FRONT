@@ -4,6 +4,7 @@ export const CREW_DISCOVERY_MODE = Object.freeze({
 })
 
 export const MAX_PERSONALIZED_CREW_BATCH = 20
+export const DEFAULT_API_BASE_URL = '/api/v1'
 
 export class CrewDiscoveryError extends Error {
   constructor(message, { status = null, mode = null, payload = null } = {}) {
@@ -36,8 +37,8 @@ function validateLimit(limit) {
   }
 }
 
-function normalizedBaseUrl(baseUrl) {
-  const normalized = normalizedOptional(baseUrl)
+function normalizedApiBaseUrl(baseUrl) {
+  const normalized = normalizedOptional(baseUrl) || DEFAULT_API_BASE_URL
   return normalized.endsWith('/') ? normalized.slice(0, -1) : normalized
 }
 
@@ -69,7 +70,7 @@ export function resolveCrewDiscoveryMode({
 }
 
 export function createCrewDiscoveryRequest({
-  baseUrl = '',
+  baseUrl = DEFAULT_API_BASE_URL,
   accessToken,
   keyword,
   region,
@@ -84,13 +85,13 @@ export function createCrewDiscoveryRequest({
     headers.Authorization = `Bearer ${token}`
   }
 
-  const base = normalizedBaseUrl(baseUrl)
+  const base = normalizedApiBaseUrl(baseUrl)
 
   if (mode === CREW_DISCOVERY_MODE.PERSONALIZED) {
     const params = new URLSearchParams({ limit: String(limit) })
     return {
       mode,
-      url: `${base}/api/v1/recommendation/crews?${params.toString()}`,
+      url: `${base}/recommendation/crews?${params.toString()}`,
       headers,
     }
   }
@@ -107,7 +108,7 @@ export function createCrewDiscoveryRequest({
 
   return {
     mode,
-    url: `${base}/api/v1/crews?${params.toString()}`,
+    url: `${base}/crews?${params.toString()}`,
     headers,
   }
 }
