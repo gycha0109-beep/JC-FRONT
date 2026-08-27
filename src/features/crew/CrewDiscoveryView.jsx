@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CalendarDays, MapPin, RefreshCw, Search, Sparkles, Users } from 'lucide-react'
 import { CREW_DISCOVERY_MODE, getCrewDiscovery } from '../../services/crewApi.js'
+import './crewDiscovery.css'
 
 const REASON_LABELS = Object.freeze({
   TAG_INTEREST: '관심 태그가 잘 맞아요',
