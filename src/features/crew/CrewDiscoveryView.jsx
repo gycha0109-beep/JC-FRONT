@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { CalendarDays, MapPin, RefreshCw, Search, Sparkles, Users } from 'lucide-react'
-import { CREW_DISCOVERY_MODE, getCrewDiscovery } from '../../services/crewApi.js'
+import {
+  CREW_DISCOVERY_MODE,
+  cancelCrewJoin,
+  getCrewDiscovery,
+  joinCrew,
+} from '../../services/crewApi.js'
 import './crewDiscovery.css'
+import './crewMembership.css'
 
 const REASON_LABELS = Object.freeze({
   TAG_INTEREST: '관심 태그가 잘 맞아요',
@@ -40,6 +46,29 @@ function statusLabel(crew) {
   return crew?.recruiting ? '모집 중' : '모집 마감'
 }
 
+function membershipAction(crew) {
+  const viewer = crew?.viewer
+  if (!viewer) return { kind: null, label: '로그인 후 참여', disabled: true }
+  if (viewer.owner) return { kind: null, label: '내가 만든 크루', disabled: true }
+  if (viewer.canCancel) {
+    return {
+      kind: 'cancel',
+      label: viewer.membershipStatus === 'PENDING' ? '신청 취소' : '참여 취소',
+      disabled: false,
+    }
+  }
+  if (viewer.canJoin) {
+    return {
+      kind: 'join',
+      label: crew.approvalRequired ? '참여 신청' : '바로 참여',
+      disabled: false,
+    }
+  }
+  if (viewer.membershipStatus === 'APPROVED') return { kind: null, label: '참여 중', disabled: true }
+  if (viewer.membershipStatus === 'PENDING') return { kind: null, label: '승인 대기', disabled: true }
+  return { kind: null, label: crew.recruiting ? '참여 불가' : '모집 마감', disabled: true }
+}
+
 export default function CrewDiscoveryView() {
   const [queryInput, setQueryInput] = useState('')
   const [regionInput, setRegionInput] = useState('')
@@ -49,6 +78,9 @@ export default function CrewDiscoveryView() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [actionCrewId, setActionCrewId] = useState(null)
+  const [actionError, setActionError] = useState(null)
+  const [actionNotice, setActionNotice] = useState('')
 
   const load = useCallback(async (signal) => {
     setLoading(true)
@@ -109,6 +141,7 @@ export default function CrewDiscoveryView() {
 
   const submitFilters = (event) => {
     event.preventDefault()
+    setActionNotice('')
     setPage(0)
     setFilters({
       keyword: queryInput.trim(),
@@ -119,8 +152,42 @@ export default function CrewDiscoveryView() {
   const clearFilters = () => {
     setQueryInput('')
     setRegionInput('')
+    setActionNotice('')
     setPage(0)
     setFilters({ keyword: '', region: '' })
+  }
+
+  const runMembershipAction = async (crew) => {
+    const action = membershipAction(crew)
+    if (!action.kind) return
+
+    setActionCrewId(crew.id)
+    setActionError(null)
+    setActionNotice('')
+
+    try {
+      if (action.kind === 'join') {
+        const application = await joinCrew(crew.id)
+        setActionNotice(
+          application?.status === 'APPROVED'
+            ? '크루 참여가 완료되었습니다.'
+            : '참여 신청이 접수되었습니다. 승인 결과를 확인해 주세요.',
+        )
+      } else {
+        await cancelCrewJoin(crew.id)
+        setActionNotice('크루 참여 신청이 취소되었습니다.')
+      }
+      setReloadKey((value) => value + 1)
+    } catch (nextError) {
+      setActionError({
+        crewId: crew.id,
+        message: nextError.status === 401
+          ? '로그인이 만료되었습니다. 다시 로그인한 뒤 시도해 주세요.'
+          : '크루 참여 상태를 변경하지 못했습니다.',
+      })
+    } finally {
+      setActionCrewId(null)
+    }
   }
 
   return (
@@ -167,6 +234,13 @@ export default function CrewDiscoveryView() {
         </div>
       )}
 
+      {actionNotice && (
+        <div className="crewActionNotice">
+          <span>{actionNotice}</span>
+          <button type="button" onClick={() => setActionNotice('')}>닫기</button>
+        </div>
+      )}
+
       {loading && (
         <section className="crewStatePanel">
           <RefreshCw className="crewSpinner" size={20} />
@@ -201,6 +275,9 @@ export default function CrewDiscoveryView() {
             const memberCount = Number(crew.memberCount || 0)
             const capacity = Number(crew.capacity || 0)
             const ratio = capacity > 0 ? Math.min(100, Math.round((memberCount / capacity) * 100)) : 0
+            const action = membershipAction(crew)
+            const actionBusy = actionCrewId === crew.id
+            const cardActionError = actionError?.crewId === crew.id ? actionError.message : ''
 
             return (
               <article className="crewCard" key={crew.id}>
@@ -234,6 +311,17 @@ export default function CrewDiscoveryView() {
                   <span>by {crew.ownerNickname || '여행자'}</span>
                   <span>{crew.approvalRequired ? '승인제' : '바로 참여'}</span>
                 </div>
+
+                <button
+                  type="button"
+                  className={`crewMembershipAction ${action.kind === 'cancel' ? 'cancel' : ''}`}
+                  disabled={action.disabled || actionBusy}
+                  onClick={() => runMembershipAction(crew)}
+                >
+                  {actionBusy && <RefreshCw className="crewActionSpinner" size={12} />}
+                  {actionBusy ? '처리 중' : action.label}
+                </button>
+                {cardActionError && <p className="crewActionError">{cardActionError}</p>}
               </article>
             )
           })}

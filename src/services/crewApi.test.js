@@ -2,8 +2,11 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
   CREW_DISCOVERY_MODE,
+  CrewMembershipError,
+  cancelCrewJoin,
   createCrewDiscoveryContext,
   getCrewDiscovery,
+  joinCrew,
   resolveApiBaseUrl,
 } from './crewApi.js'
 import {
@@ -193,4 +196,127 @@ test('401 clears stored auth but does not retry through legacy Crew discovery', 
   assert.equal(storage.has(ACCESS_TOKEN_KEY), false)
   assert.equal(storage.has(REFRESH_TOKEN_KEY), false)
   assert.equal(storage.has(LOGIN_USER_KEY), false)
+})
+
+test('joinCrew posts to the canonical Crew join endpoint with stored auth', async () => {
+  const storage = memoryStorage({ accessToken: 'token' })
+  const calls = []
+
+  const application = await joinCrew(42, {
+    storage,
+    baseUrl: 'http://localhost:8080/api/v1/',
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options })
+      return {
+        ok: true,
+        status: 201,
+        async json() {
+          return {
+            success: true,
+            data: { id: 8, crewId: 42, userId: 3, status: 'PENDING' },
+            message: 'created',
+          }
+        },
+      }
+    },
+  })
+
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].url, 'http://localhost:8080/api/v1/crews/42/join')
+  assert.equal(calls[0].options.method, 'POST')
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer token')
+  assert.equal(application.status, 'PENDING')
+})
+
+test('cancelCrewJoin accepts the canonical 204 no-content response', async () => {
+  const storage = memoryStorage({ accessToken: 'token' })
+  const calls = []
+
+  const result = await cancelCrewJoin(42, {
+    storage,
+    baseUrl: '/api/v1',
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options })
+      return { ok: true, status: 204 }
+    },
+  })
+
+  assert.equal(result, null)
+  assert.equal(calls.length, 1)
+  assert.equal(calls[0].url, '/api/v1/crews/42/join')
+  assert.equal(calls[0].options.method, 'DELETE')
+})
+
+test('Crew membership mutation requires auth before making a request', async () => {
+  const storage = memoryStorage()
+  let calls = 0
+
+  await assert.rejects(
+    () => joinCrew(42, {
+      storage,
+      fetchImpl: async () => {
+        calls += 1
+        throw new Error('must not run')
+      },
+    }),
+    (error) => {
+      assert.equal(error instanceof CrewMembershipError, true)
+      assert.equal(error.status, 401)
+      return true
+    },
+  )
+
+  assert.equal(calls, 0)
+})
+
+test('Crew membership 401 clears stored auth without retry', async () => {
+  const storage = memoryStorage({
+    [ACCESS_TOKEN_KEY]: 'expired',
+    [REFRESH_TOKEN_KEY]: 'refresh',
+    [LOGIN_USER_KEY]: '{"id":1}',
+  })
+  let calls = 0
+
+  await assert.rejects(
+    () => joinCrew(42, {
+      storage,
+      baseUrl: '/api/v1',
+      fetchImpl: async () => {
+        calls += 1
+        return {
+          ok: false,
+          status: 401,
+          async json() {
+            return { success: false, message: 'unauthorized' }
+          },
+        }
+      },
+    }),
+    (error) => {
+      assert.equal(error instanceof CrewMembershipError, true)
+      assert.equal(error.status, 401)
+      return true
+    },
+  )
+
+  assert.equal(calls, 1)
+  assert.equal(storage.has(ACCESS_TOKEN_KEY), false)
+  assert.equal(storage.has(REFRESH_TOKEN_KEY), false)
+  assert.equal(storage.has(LOGIN_USER_KEY), false)
+})
+
+test('Crew membership rejects invalid crew IDs before fetch', async () => {
+  const storage = memoryStorage({ accessToken: 'token' })
+  let calls = 0
+
+  await assert.rejects(
+    () => cancelCrewJoin(0, {
+      storage,
+      fetchImpl: async () => {
+        calls += 1
+      },
+    }),
+    /crewId/,
+  )
+  assert.equal(calls, 0)
 })
